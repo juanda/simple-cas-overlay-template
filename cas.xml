@@ -1,4 +1,4 @@
-<Context docBase="$CAS_HOME$/target/cas.war"
+<Context docBase="/home/vagrant/cas-overlay/target/cas.war"
          privileged="true"
          antiResourceLocking="false"
          antiJARLocking="false"

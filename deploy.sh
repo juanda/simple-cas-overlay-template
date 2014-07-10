@@ -2,7 +2,7 @@
 #
 
 $CATALINA_HOME/bin/shutdown.sh
-cd /opt/cas-overlay
+cd /home/vagrant/cas-overlay
 mvn clean package
 rm -rf $CATALINA_HOME/logs/*
 rm -f $CATALINA_HOME/webapps/cas.war

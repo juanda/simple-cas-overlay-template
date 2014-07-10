@@ -26,21 +26,79 @@
                 <bean class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler"
                       p:httpClient-ref="httpClient" />
                 <!-- DO NOT EVER PUT THIS BEAN IN PRODUCTION!!! -->
-                <bean class="org.jasig.cas.authentication.handler.support.SimpleTestUsernamePasswordAuthenticationHandler" />
+               <!-- <bean class="org.jasig.cas.authentication.handler.support.SimpleTestUsernamePasswordAuthenticationHandler" /> -->
+                <bean class="org.jasig.cas.adaptors.ldap.BindLdapAuthenticationHandler">
+                   <property name="filter" value="cn=%u" />
+                   <property name="searchBase" value="dc=cas,dc=server" />
+                   <property name="contextSource" ref="contextSource" />
+                </bean>
             </list>
         </property>
     </bean>
 
-    <bean id="attributeRepository" class="org.jasig.services.persondir.support.StubPersonAttributeDao"/>
 
-    <cas:json-services-registry/>
+    <bean id="contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
+     <property name="urls">
+         <list>
+             <value>ldap://localhost:389/</value>
+         </list>
+     </property>
+     <property name="userDn" value="cn=admin,dc=cas,dc=server"/>
+     <property name="password" value="root"/>
+     <property name="baseEnvironmentProperties">
+         <map>
+             <entry>
+                 <key>
+                     <value>java.naming.security.authentication</value>
+                 </key>
+                 <value>simple</value>
+             </entry>
+         </map>
+     </property>
+   </bean>
+
+    <!--<bean id="attributeRepository" class="org.jasig.services.persondir.support.StubPersonAttributeDao"/> -->
+
+
+   <!-- Modify the UsernamePasswordCredentialsToPrincipalResolver bean to reference the   attributeRepository -->
+   <bean class="org.jasig.cas.authentication.principal.UsernamePasswordCredentialsToPrincipalResolver">
+     <property name="attributeRepository" ref="attributeRepository" />
+   </bean>
+
+   <bean id="attributeRepository"    class="org.jasig.services.persondir.support.ldap.LdapPersonAttributeDao">
+     <property name="contextSource" ref="contextSource" />
+     <property name="baseDN" value="dc=cas,dc=server" />
+     <property name="requireAllQueryAttributes" value="true" />
+
+     <!--
+     Attribute mapping between principal (key) and LDAP (value) names
+     used to perform the LDAP search.  By default, multiple search criteria
+     are ANDed together.  Set the queryType property to change to OR.
+     -->
+     <property name="queryAttributeMapping">
+       <map>
+         <entry key="username" value="cn" />
+      </map>
+     </property>
+
+     <property name="resultAttributeMapping">
+       <map>
+         <!-- Mapping beetween LDAP entry attributes (key) and Principal's (value) -->
+         <entry value="Name" key="cn" />
+         <entry value="home" key="homeDirectory" />
+         <entry value="description" key="description" />
+       </map>
+     </property>
+   </bean>
+
+    <cas:json-services-registry read-write="true"/>
 
     <cas:inspektr-log-files-audit-manager/>
 
     <cas:default-health-check-monitor/>
 
     <sec:user-service id="userDetailsService">
-        <sec:user name="none" authorities="none"/>
+        <sec:user name="juanda rodriguez" password="notused" authorities="ROLE_ADMIN" />
     </sec:user-service>
 
 </beans>
