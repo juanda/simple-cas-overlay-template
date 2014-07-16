@@ -12,6 +12,12 @@
                            http://unicon.net/schema/cas/cas-addons.xsd">
 
 
+    <bean class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
+    	<property name="location" value="file:/etc/cas/cas.cfg" />
+    	<property name="localOverride" value="true" />
+    	<property name="ignoreResourceNotFound" value="true" />
+    </bean>
+
     <bean id="authenticationManager" class="org.jasig.cas.authentication.AuthenticationManagerImpl">
         <property name="credentialsToPrincipalResolvers">
             <list>
@@ -27,15 +33,16 @@
                       p:httpClient-ref="httpClient" />
                 <!-- DO NOT EVER PUT THIS BEAN IN PRODUCTION!!! -->
                <!-- <bean class="org.jasig.cas.authentication.handler.support.SimpleTestUsernamePasswordAuthenticationHandler" /> -->
-                <bean class="org.jasig.cas.adaptors.ldap.BindLdapAuthenticationHandler">
-                   <property name="filter" value="cn=%u" />
-                   <property name="searchBase" value="dc=cas,dc=server" />
-                   <property name="contextSource" ref="contextSource" />
-                </bean>
+		<ref bean="bindLdapAuthenticationHandler"/>
             </list>
         </property>
     </bean>
 
+    <bean id="bindLdapAuthenticationHandler" class="org.jasig.cas.adaptors.ldap.BindLdapAuthenticationHandler">
+         <property name="filter" value="ui=%u" />
+         <property name="searchBase" value="dc=cas,dc=server" />
+         <property name="contextSource" ref="contextSource" />
+    </bean>
 
     <bean id="contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
      <property name="urls">
@@ -43,8 +50,8 @@
              <value>ldap://localhost:389/</value>
          </list>
      </property>
-     <property name="userDn" value="cn=admin,dc=cas,dc=server"/>
-     <property name="password" value="root"/>
+     <property name="userDn" value="ui=admin,dc=cas,dc=server"/>
+     <property name="password" value="s3cr3t"/>
      <property name="baseEnvironmentProperties">
          <map>
              <entry>
@@ -87,6 +94,7 @@
          <entry value="Name" key="cn" />
          <entry value="home" key="homeDirectory" />
          <entry value="description" key="description" />
+         <entry value="carLicense" key="carLicense" />
        </map>
      </property>
    </bean>
