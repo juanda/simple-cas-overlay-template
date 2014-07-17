@@ -47,7 +47,7 @@
     <bean id="contextSource" class="org.springframework.ldap.core.support.LdapContextSource">
      <property name="urls">
          <list>
-             <value>ldap://localhost:389/</value>
+             <value>ldap://ldap.server:389/</value>
          </list>
      </property>
      <property name="userDn" value="ui=admin,dc=cas,dc=server"/>
